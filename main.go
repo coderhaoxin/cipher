@@ -2,12 +2,9 @@ package main
 
 import "github.com/docopt/docopt-go"
 import . "github.com/tj/go-debug"
-import "strings"
-import "bufio"
+import "path"
 import "fmt"
 import "os"
-
-// TODO: how to change blockSize from 16(default) to 32 ?
 
 var debug = Debug("cipher")
 
@@ -20,79 +17,67 @@ func main() {
 
     Options:
       -f=<filepath> Required, filepath to cipher
-      -d            Decode the file
+      -d            Decrypt the file
       -r            Replace file
       --help        Show this screen
       --version     Show version
   `
 
-	args, _ := docopt.Parse(usage, os.Args[1:], true, "v0.1.0", false)
+	args, _ := docopt.Parse(usage, os.Args[1:], true, "v1.0.0", false)
 
 	filepath := args["<filepath>"].(string)
 	replace := args["-r"].(bool)
-	toDecode := args["-d"].(bool)
+	toDecrypt := args["-d"].(bool)
 
 	var key string
 
-	debug("filepath: %s, replace: %v, decode: %v", filepath, replace, toDecode)
+	debug("filepath: %s, replace: %v, decrypt: %v", filepath, replace, toDecrypt)
 
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("input the key")
+	fmt.Println("input the key \n")
 
 	var filedata []byte
 	var result string
 
-	for true {
-		i, err := reader.ReadString('\n')
-		input := strings.TrimSpace(i)
+	// get key
+	pass := readline()
+	debug("input key: %s", pass)
+	if pass == "" {
+		// default key
+		key = path.Base(filepath)
+	} else {
+		key = pass
+	}
 
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
+	filedata = read(filepath)
 
-		if key == "" {
-			if input == "" {
-				key = filepath // default key
-			} else {
-				key = input
-			}
+	if toDecrypt {
+		// decrypt
+		result = decrypt(filedata, key)
+		debug("to decrypt - key: %s, filedata: %s", key, bytes2string(filedata))
+		fmt.Println("\n" + result)
+	} else {
+		// encrypt
+		debug("to encrypt - key: %s, filedata: %s", key, bytes2string(filedata))
+		result = encrypt(filedata, key)
+		fmt.Println("\n" + result)
+	}
 
-			filedata = read(filepath)
-
-			if toDecode {
-				// decode
-				result = decode(filedata, key)
-				debug("to decode - input: %s, key: %s, filedata: %s", input, key, bytes2string(filedata))
-				fmt.Println(result)
-			} else {
-				// encode
-				debug("to encode - input: %s, key: %s, filedata: %s", input, key, bytes2string(filedata))
-				result = encode(filedata, key)
-				fmt.Println(result)
-			}
-
-			fmt.Println("\n\n")
-
-			if replace {
-				fmt.Printf("replace the file: %s with above data (yes/Y/...) \n", filepath)
-			} else {
-				os.Exit(0)
-			}
-			continue
-		}
-
-		if input == "Y" || input == "yes" {
-			// write file
-			if toDecode {
-				debug("write file - decode")
-				write(filepath, result)
-			} else {
-				debug("write file - encode")
-				write(filepath, result)
-			}
-		}
-
+	if replace {
+		fmt.Printf("\nreplace the file: %s with above data (y or n) \n", filepath)
+	} else {
 		os.Exit(0)
 	}
+
+	if readline() == "y" {
+		// write file
+		if toDecrypt {
+			debug("write file - decrypt")
+			write(filepath, result)
+		} else {
+			debug("write file - encrypt")
+			write(filepath, result)
+		}
+	}
+
+	os.Exit(0)
 }
