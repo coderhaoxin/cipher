@@ -10,7 +10,9 @@ a command line tool to encrypt text files
 ```sh
 go get github.com/onebook/cipher
 
-cipher example.txt -r    # -r: replace file
+cipher --help
+
+cipher example.txt -r    # -r: replace origin file with encrypted file
 
 cipher example.txt -d -r # -d: decrypt
 ```

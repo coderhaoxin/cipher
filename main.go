@@ -1,6 +1,7 @@
 package main
 
 import "github.com/docopt/docopt-go"
+import "github.com/onebook/console"
 import . "github.com/tj/go-debug"
 import "path"
 import "fmt"
@@ -11,70 +12,68 @@ var debug = Debug("cipher")
 func main() {
 	usage := `
     Usage:
-      cipher <filepath> [-r] [-d]
+      cipher <filepath> [-r] [-d] [-k] [-i]
       cipher --help
       cipher --version
 
     Options:
       -f=<filepath> Required, filepath to cipher
+      -k            Set decrypt/encrypt key
       -d            Decrypt the file
       -r            Replace file
+      -i            Interactive
       --help        Show this screen
       --version     Show version
   `
 
-	args, _ := docopt.Parse(usage, os.Args[1:], true, "v1.0.0", false)
+	args, _ := docopt.Parse(usage, os.Args[1:], true, "v1.1.0", false)
 
 	filepath := args["<filepath>"].(string)
-	replace := args["-r"].(bool)
+	interactive := args["-i"].(bool)
 	toDecrypt := args["-d"].(bool)
-
-	var key string
-
-	debug("filepath: %s, replace: %v, decrypt: %v", filepath, replace, toDecrypt)
-
-	fmt.Println("input the key \n")
+	replace := args["-r"].(bool)
+	setKey := args["-k"].(bool)
 
 	var filedata []byte
 	var result string
+	var key string
 
 	// get key
-	pass := readline()
-	debug("input key: %s", pass)
-	if pass == "" {
+	if setKey {
+		fmt.Println(" $ input the key \n")
+		key = console.InterceptLine()
+	} else {
 		// default key
 		key = path.Base(filepath)
-	} else {
-		key = pass
 	}
+	debug("filepath: %s, replace: %v, decrypt: %v, setKey: %v, key: %s", filepath, replace, toDecrypt, setKey, key)
 
 	filedata = read(filepath)
 
 	if toDecrypt {
 		// decrypt
+		debug("to decrypt - filedata: %s", bytes2string(filedata))
 		result = decrypt(filedata, key)
-		debug("to decrypt - key: %s, filedata: %s", key, bytes2string(filedata))
-		fmt.Println("\n" + result)
 	} else {
 		// encrypt
-		debug("to encrypt - key: %s, filedata: %s", key, bytes2string(filedata))
+		debug("to encrypt - filedata: %s", bytes2string(filedata))
 		result = encrypt(filedata, key)
-		fmt.Println("\n" + result)
+	}
+
+	if interactive {
+		fmt.Println(" $ the result is:")
+		fmt.Println(result)
 	}
 
 	if replace {
-		fmt.Printf("\nreplace the file: %s with above data (y or n) \n", filepath)
-	} else {
-		os.Exit(0)
-	}
-
-	if readline() == "y" {
-		// write file
-		if toDecrypt {
-			debug("write file - decrypt")
-			write(filepath, result)
+		if interactive {
+			fmt.Printf("\n $ replace the file: %s with above data (y or n) \n", filepath)
+			if console.ReadChar() == "y" {
+				// write file
+				write(filepath, result)
+			}
 		} else {
-			debug("write file - encrypt")
+			// write file
 			write(filepath, result)
 		}
 	}

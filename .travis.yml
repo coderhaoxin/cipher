@@ -5,4 +5,5 @@ script:
   - make test
 install:
   - go get github.com/docopt/docopt-go
+  - go get github.com/onebook/console
   - go get github.com/tj/go-debug

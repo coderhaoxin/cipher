@@ -6,7 +6,7 @@ run:
 	@go fmt ./...
 	@go test
 	@go install
-	@DEBUG=cipher cipher test.txt -r
-	@DEBUG=cipher cipher test.txt -r -d
+	@DEBUG=cipher cipher test.txt -r -k -i
+	@DEBUG=cipher cipher test.txt -r -k -d -i
 
 .PHONY: test run
