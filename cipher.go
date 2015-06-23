@@ -11,6 +11,7 @@ var common = []byte{
 }
 
 var blockSize = aes.BlockSize
+var keySize = 32
 
 func encrypt(text []byte, keys string) string {
 	key, iv := getKeyAndIV(keys)
@@ -45,16 +46,17 @@ func decrypt(text []byte, keys string) string {
 
 func getKeyAndIV(keys string) (key, iv []byte) {
 	key = []byte(keys)
-	// len(key) == len(iv) == blockSize (16, 24, 32)
-	if size := len(key); size != blockSize {
-		if size < blockSize {
+
+	if size := len(key); size != keySize {
+		if size < keySize {
 			key = append(key, common[size:]...)
 		} else {
-			key = key[:blockSize]
+			key = key[:keySize]
 		}
 	}
 
 	iv = make([]byte, blockSize)
+	copy(iv, key[0:blockSize])
 
 	return
 }

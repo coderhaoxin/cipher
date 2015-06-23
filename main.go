@@ -1,7 +1,7 @@
 package main
 
+import "github.com/pkg4go/pkgs/console"
 import "github.com/docopt/docopt-go"
-import "github.com/onebook/console"
 import . "github.com/tj/go-debug"
 import "path"
 import "fmt"
@@ -11,22 +11,22 @@ var debug = Debug("cipher")
 
 func main() {
 	usage := `
-    Usage:
-      cipher <filepath> [-r] [-d] [-k] [-i]
-      cipher --help
-      cipher --version
+  Usage:
+    cipher <filepath> [-r] [-d] [-k] [-i]
+    cipher --help
+    cipher --version
 
-    Options:
-      -f=<filepath> Required, filepath to cipher
-      -k            Set decrypt/encrypt key
-      -d            Decrypt the file
-      -r            Replace file
-      -i            Interactive
-      --help        Show this screen
-      --version     Show version
-  `
+  Options:
+    -f=<filepath> Required, filepath to cipher
+    -k            Set decrypt/encrypt key
+    -d            Decrypt the file
+    -r            Replace file
+    -i            Interactive
+    --help        Show this screen
+    --version     Show version
+`
 
-	args, _ := docopt.Parse(usage, os.Args[1:], true, "v1.1.0", false)
+	args, _ := docopt.Parse(usage, os.Args[1:], true, "v1.2.0", false)
 
 	filepath := args["<filepath>"].(string)
 	interactive := args["-i"].(bool)
@@ -61,7 +61,6 @@ func main() {
 	}
 
 	if interactive {
-		fmt.Println(" $ the result is:")
 		fmt.Println(result)
 	}
 
