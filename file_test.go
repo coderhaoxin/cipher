@@ -1,6 +1,8 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestFile(t *testing.T) {
 	data := "hello, haoxin"

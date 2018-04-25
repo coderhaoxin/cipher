@@ -1,8 +1,10 @@
 package main
 
-import "path/filepath"
-import "io/ioutil"
-import "os"
+import (
+	"io/ioutil"
+	"os"
+	"path/filepath"
+)
 
 func read(filename string) []byte {
 	path := resolve(filename)
