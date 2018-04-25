@@ -2,8 +2,7 @@ language: go
 go:
   - tip
 script:
-  - make test
+  - go test -v *.go
 install:
   - go get github.com/pkg4go/pkgs/console
   - go get github.com/docopt/docopt-go
-  - go get github.com/tj/go-debug
