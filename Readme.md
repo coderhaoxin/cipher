@@ -20,7 +20,7 @@ cipher example.txt -d -r # -d: decrypt
 ### License
 MIT
 
-[travis-img]: https://img.shields.io/travis/onebook/cipher.svg?style=flat-square
+[travis-img]: https://img.shields.io/travis/coderhaoxin/cipher.svg?style=flat-square
 [travis-url]: https://travis-ci.org/coderhaoxin/cipher
 [license-img]: http://img.shields.io/badge/license-MIT-green.svg?style=flat-square
 [license-url]: http://opensource.org/licenses/MIT
